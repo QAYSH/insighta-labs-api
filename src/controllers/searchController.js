@@ -32,7 +32,7 @@ export const searchProfiles = async (req, res, next) => {
     };
 
     // Reuse the profiles controller logic
-    await getProfiles(req, res, next);git add 
+    await getProfiles(req, res, next);
   } catch (error) {
     next(error);
   }
