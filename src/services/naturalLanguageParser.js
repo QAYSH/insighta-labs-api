@@ -78,3 +78,45 @@ export const parseQuery = (queryString) => {
   
   // "young" special handling (ages 16-24)
   if (!filters.age_group && /\byoung\b/.test(query)) {
+    filters.min_age = 16;
+    filters.max_age = 24;
+  }
+  
+  // Age comparisons (above/below/over/under)
+  const aboveMatch = query.match(/\b(above|over|older than|greater than)\s+(\d+)\b/);
+  if (aboveMatch) {
+    filters.min_age = parseInt(aboveMatch[2]);
+  }
+  
+  const belowMatch = query.match(/\b(below|under|younger than|less than)\s+(\d+)\b/);
+  if (belowMatch) {
+    filters.max_age = parseInt(belowMatch[2]);
+  }
+  
+  // Exact age "age X"
+  const exactAgeMatch = query.match(/\bage\s+(\d+)\b/);
+  if (exactAgeMatch) {
+    const age = parseInt(exactAgeMatch[1]);
+    filters.min_age = age;
+    filters.max_age = age;
+  }
+  
+  // Country detection
+  for (const [countryName, code] of Object.entries(countryMap)) {
+    const regex = new RegExp(`\\b${countryName}\\b`, 'i');
+    if (regex.test(query)) {
+      filters.country_id = code;
+      break;
+    }
+  }
+
+  
+  // If we have at least one filter, return it
+  if (Object.keys(filters).length > 0) {
+    return filters;
+  }
+  
+  // If we got here but have no filters, it's not a valid query
+  // (This handles cases like just the word "people" or random words)
+  return null;
+};
